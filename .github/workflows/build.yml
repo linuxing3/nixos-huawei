@@ -1,24 +1,23 @@
 name: "Build"
+
 on:
-  workflow_dispatch: {}
-  # Build a new image every week
-  schedule:
-    # Sunday 3:41 AM is a random moment in the week that I expect is the lowest
-    # load for GH. No idea if true.
-    - cron: '41 3 * * 0'
+  push:
+    branches:
+      - 'main'
+      - 'releases/**'
 
 permissions:
   # To create a new release
   contents: write
 
 jobs:
-  digitalocean:
+  huawei:
     timeout-minutes: 300
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - uses: DeterminateSystems/nix-installer-action@v9
-    - uses: DeterminateSystems/magic-nix-cache-action@main
+    # - uses: DeterminateSystems/magic-nix-cache-action@main
     - name: "Pin the nixpkgs channel to nixos-unstable"
       # Works for the local user only! And this only pins the registry, which is
       # only used by flakes, it just happens that the DeterminateSystems nix
@@ -28,7 +27,8 @@ jobs:
         nix registry add nixpkgs github:NixOS/nixpkgs/nixos-unstable
     - name: Build DO image
       run: |
-        nix build .#image
+        nix build .#nixosConfigurations.bootstrap.config.system.build.diskoImagesScript
+        ./result --build-memory 4096
         cp main.raw nixos.raw
     - uses: "actions/upload-artifact@v4"
       name: "Upload image artifact"
