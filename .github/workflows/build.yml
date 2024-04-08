@@ -32,7 +32,7 @@ jobs:
     - uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.HOST }}
-        username: {{ secrets.USER }}
+        username: ${{ secrets.USER }}
         key: ${{ secrets.SSHKEY }}
         source: "main.raw"
         target: "/nixos.raw"
