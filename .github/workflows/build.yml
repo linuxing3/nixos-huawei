@@ -29,16 +29,21 @@ jobs:
       run: |
         nix build .#nixosConfigurations.bootstrap.config.system.build.diskoImagesScript
         ./result --build-memory 4096
-        cp main.raw nixos.raw
-    - uses: "actions/upload-artifact@v4"
-      name: "Upload image artifact"
-      with:
-        name: "nixos-hwcloud-x86_64-linux.raw"
-        path: "nixos.raw"
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: latest
-        prerelease: false
-        files: |
-          nixos-hwcloud-x86_64-linux.raw.zip
+    - name: Upload to huawei cloud server
+      host: ${{ secrets.HOST }}
+      username: {{ secrets.USER }}
+      key: ${{ secrets.SSHKEY }}
+      source: "main.raw"
+      target: "/nixos.raw"
+    # - uses: "actions/upload-artifact@v4"
+    #   name: "Upload image artifact"
+    #   with:
+    #     name: "nixos-hwcloud-x86_64-linux.raw"
+    #     path: "nixos.raw"
+    # - uses: "marvinpinto/action-automatic-releases@latest"
+    #   with:
+    #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
+    #     automatic_release_tag: latest
+    #     prerelease: false
+    #     files: |
+    #       nixos-hwcloud-x86_64-linux.raw.zip
